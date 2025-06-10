@@ -1,0 +1,808 @@
+:root {
+  --primary: #0d3a5f;
+  --secondary: #1e90ff;
+  --dark: #1a1a1a;
+  --darker: #121212;
+  --light: #f8f9fa;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: 
+  url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--light);
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  background: rgba(26, 26, 26, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 30px;
+  background: 
+    url('bg-header.jpg') no-repeat center center;
+  background-size: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Notificaciones */
+#notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification {
+  background-color: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 350px;
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.success {
+  border-left: 5px solid var(--success);
+}
+
+.notification.error {
+  border-left: 5px solid var(--danger);
+}
+
+.notification.info {
+  border-left: 5px solid var(--secondary);
+}
+
+.notification.warning {
+  border-left: 5px solid var(--warning);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-content i {
+  font-size: 1.5rem;
+}
+
+.notification.success i {
+  color: var(--success);
+}
+
+.notification.error i {
+  color: var(--danger);
+}
+
+.notification.info i {
+  color: var(--secondary);
+}
+
+.notification.warning i {
+  color: var(--warning);
+}
+
+/* Nuevos estilos para la estructura de dos secciones */
+.sections-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.clan-section, .local-section {
+  background-color: rgba(42, 42, 42, 0.8);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+/* Igualar altura de secciones */
+.clan-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.clan-section .table-container {
+  flex: 1;
+}
+
+.local-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.local-section .table-container {
+  flex: 1;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.section-header h2 {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.section-memberapi {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.section-memberapi h2 {
+  color: #f0b400;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.refresh-button, .refresh-button2, .add-button, .save-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.refresh-button {
+  background-color: var(--primary);
+  color: white;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.refresh-button:hover {
+  background-color: #0077ff;
+}
+
+.refresh-button2 {
+  background-color: var(--secondary);
+  color: white;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.refresh-button2:hover {
+  background-color: #0077ff;
+}
+
+.add-button {
+  background-color: var(--success);
+  color: white;
+  margin: 0;
+}
+
+.add-button:hover {
+  background-color: #218838;
+}
+
+.save-button {
+  background-color: var(--primary);
+  color: white;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.save-button:hover {
+  background-color: #0077ff;
+}
+
+.large-button {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 1.3rem;
+  margin: 25px 0;
+  background: linear-gradient(135deg, var(--primary), #1e90ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.large-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.comparison-control {
+  text-align: center;
+}
+
+/* Tablas */
+.table-container {
+  overflow-x: auto;
+  background-color: rgba(51, 51, 51, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Para historial: sin scroll interno */
+.history-section .table-container {
+  max-height: none;
+  overflow-y: visible;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+th {
+  background-color: rgba(13, 58, 95, 0.8);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+tbody tr {
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+tbody tr:hover {
+  background-color: rgba(58, 58, 58, 0.5);
+}
+
+.member-id {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #a0d2ff;
+}
+
+/* Estilos para Bungie ID */
+.bungie-id-main {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.supplemental-name {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+/* Celda de Discord ID */
+.discord-id-cell {
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+/* Botones de acción en sección derecha */
+.action-cell {
+  width: 80px;
+  position: relative;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  gap: 5px;
+}
+
+tbody tr:hover .action-buttons {
+  display: flex;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button2 {
+  width: 90px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button3 {
+  width: 75px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 5px;
+}
+
+.edit-button {
+  background-color: var(--warning);
+  color: black;
+}
+
+.edit-button:hover {
+  background-color: #e0a800;
+  transform: scale(1.1);
+}
+
+.delete-button {
+  background-color: var(--danger);
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #bd2130;
+  transform: scale(1.1);
+}
+
+/* Sección de Historial */
+.history-section {
+  margin-top: 40px;
+  background-color: rgba(42, 42, 42, 0.8);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.history-controls {
+  margin-bottom: 15px;
+  text-align: right;
+}
+
+/* Filas de historial */
+.history-added {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-left: 4px solid rgba(40, 167, 70, 0.329);
+}
+
+.history-removed {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-left: 4px solid rgba(220, 53, 70, 0.349);
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+  font-size: 1.1rem;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pagination-button:hover {
+  background-color: #555;
+}
+
+.pagination-button:disabled {
+  background-color: #333;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Modals */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  background-color: #2a2a2a;
+  margin: 5% auto;
+  padding: 30px;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.large-modal {
+  max-width: 1000px;
+}
+
+.close {
+  color: #aaa;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close:hover {
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: white;
+  font-size: 1rem;
+}
+
+.confirm-button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--success);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+}
+
+.member-info {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #333;
+  border-radius: 8px;
+  border-left: 4px solid var(--secondary);
+}
+
+.member-info p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.member-info .error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.member-info .warning {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+/* Botones de acción en comparación */
+.add-button-compare {
+  background-color: var(--success);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-button-compare:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.remove-button-compare {
+  background-color: var(--danger);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-button-compare:hover {
+  background-color: #bd2130;
+  transform: scale(1.05);
+}
+
+/* Colores para filas en comparación */
+.comparison-row-added {
+  background-color: rgba(40, 167, 69, 0.15);
+}
+
+.comparison-row-removed {
+  background-color: rgba(220, 53, 69, 0.15);
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+  color: #aaa;
+  font-size: 0.9rem;
+  border-top: 1px solid #333;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .sections-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .large-button {
+    font-size: 1.1rem;
+    padding: 14px;
+  }
+  
+  th, td {
+    padding: 10px 12px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .add-button {
+    width: 100%;
+  }
+  
+  .action-buttons {
+    position: static;
+    display: flex !important;
+    margin-top: 10px;
+  }
+}
+
+.history-updated {
+  background-color: #ffcc008f;
+  border-left: 4px solid #ffcc00b2;
+}
+
+/* Añadir scroll interno a las tablas */
+.clan-section .table-container,
+.local-section .table-container,
+#comparisonModal .table-container {
+  max-height: 400px; /* Altura máxima fija */
+  overflow-y: auto; /* Scroll vertical */
+  position: relative;
+}
+
+/* Mantener encabezado fijo durante scroll */
+table {
+  table-layout: fixed; /* Anchos fijos */
+  width: 100%;
+}
+
+/* Fijar encabezados durante scroll */
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Definir anchos fijos para todas las tablas */
+#apiMembersTable th:nth-child(1),
+#apiMembersTable td:nth-child(1) {
+  width: 50px;
+}
+
+#apiMembersTable th:nth-child(2),
+#apiMembersTable td:nth-child(2) {
+  width: 280px;
+}
+
+#apiMembersTable th:nth-child(3),
+#apiMembersTable td:nth-child(3) {
+  width: calc(100% - 300px);
+}
+
+#localMembersTable th:nth-child(1),
+#localMembersTable td:nth-child(1) {
+  width: 50px;
+}
+
+#localMembersTable th:nth-child(2),
+#localMembersTable td:nth-child(2) {
+  width: 190px;
+}
+
+#localMembersTable th:nth-child(3),
+#localMembersTable td:nth-child(3) {
+  width: 190px;
+}
+
+#localMembersTable th:nth-child(4),
+#localMembersTable td:nth-child(4) {
+  width: 150px;
+}
+
+#localMembersTable th:nth-child(5),
+#localMembersTable td:nth-child(5) {
+  width: 100px;
+}
+
+#comparisonTable th:nth-child(1),
+#comparisonTable td:nth-child(1) {
+  width: 300px;
+}
+
+#comparisonTable th:nth-child(2),
+#comparisonTable td:nth-child(2) {
+  width: 400px;
+}
+
+#comparisonTable th:nth-child(3),
+#comparisonTable td:nth-child(3) {
+  width: 200px;
+}
+
+/* Manejar textos largos */
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Permitir múltiples líneas solo en celdas específicas */
+.bungie-id-main,
+.supplemental-name {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Asegurar que las tablas mantengan su tamaño */
+.table-container {
+  min-width: 100%;
+  overflow-x: hidden;
+  resize: none;
+}
+
+/* Prevenir cambios en el layout */
+.sections-container,
+.clan-section,
+.local-section,
+.table-container,
+table {
+  resize: none;
+  max-width: none !important;
+  min-width: none !important;
+}
+
+/* Estilos para la nueva columna en la tabla de comparación */
+#comparisonTable th:nth-child(1),
+#comparisonTable td:nth-child(1) {
+  width: 250px;
+}
+
+#comparisonTable th:nth-child(2),
+#comparisonTable td:nth-child(2) {
+  width: 300px;
+}
+
+#comparisonTable th:nth-child(3),
+#comparisonTable td:nth-child(3) {
+  width: 200px;
+}
+
+#comparisonTable th:nth-child(4),
+#comparisonTable td:nth-child(4) {
+  width: 150px;
+}

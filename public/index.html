@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRODAS - Sistema de Purga</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <!-- Contenedor de notificaciones -->
+    <div id="notification-container"></div>
+    
+    <header>
+      <h1></i>BRODAS - Sistema de Purga</h1>
+    </header>
+
+    <!-- Botón de comparación -->
+    <div class="comparison-control">
+      <button id="startComparison" class="large-button">
+        <i class="fas fa-exchange-alt"></i> CRUCE DE DATOS
+      </button>
+    </div>
+
+    <!-- Secciones izquierda y derecha -->
+    <div class="sections-container">
+      <!-- Sección izquierda: Miembros de la API -->
+      <section class="clan-section">
+        <div class="section-header">
+          <h2><i class="fas fa-database"></i> Miembros (API)</h2>
+
+        </div>
+        <div class="table-container">
+          <table id="apiMembersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Miembro</th>
+              </tr>
+            </thead>
+            <tbody id="apiMembersTableBody">
+              <!-- Datos de la API se insertarán aquí -->
+            </tbody>
+          </table>
+        </div>
+        <button id="refreshApiData" class="refresh-button">
+          <i class="fas fa-sync"></i> Actualizar
+        </button>
+      </section>
+
+      <!-- Sección derecha: Miembros locales -->
+      <section class="local-section">
+        <div class="section-header">
+          <h2><i class="fas fa-edit"></i> Miembros (Local)</h2>
+          <button id="addMemberButton" class="add-button">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
+        </div>
+        <div class="table-container">
+          <table id="localMembersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Miembro</th>
+                <th>Discord</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="localMembersTableBody">
+              <!-- Datos locales se insertarán aquí -->
+            </tbody>
+          </table>
+        </div>
+        <button id="saveLocalData" class="save-button">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+      </section>
+    </div>
+
+    <!-- Sección de Historial -->
+    <section class="history-section">
+      <div class="section-header"><h2><i class="fas fa-history"></i> Historial de cambios</h2></div>
+      <div class="history-controls">
+        <button id="refreshHistory" class="refresh-button2">
+          <i class="fas fa-sync"></i> Actualizar
+        </button>
+      </div>
+      <div class="table-container">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Acción</th>
+              <th>ID</th>
+              <th>Miembro</th>
+              <th>Discord</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Historial se insertará aquí -->
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="prevPage" class="pagination-button"><i class="fas fa-chevron-left"></i></button>
+        <span id="currentPage">1</span>
+        <span>de</span>
+        <span id="totalPages">1</span>
+        <button id="nextPage" class="pagination-button"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </section>
+
+    <!-- Modal para agregar miembro -->
+    <div id="addMemberModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Agregar miembro</h2>
+        <div class="form-group">
+          <label for="memberIdInput">ID:</label>
+          <input type="text" id="memberIdInput" placeholder="Ingrese el ID">
+          <button id="searchMemberButton" class="action-button3">Buscar</button>
+        </div>
+        <div id="memberInfo" class="member-info"></div>
+        <button id="confirmAddMember" class="confirm-button" disabled>Agregar</button>
+      </div>
+    </div>
+
+    <!-- Modal para editar Discord ID -->
+    <div id="editDiscordModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Discord</h2>
+        <div class="form-group">
+          <label for="discordIdInput">Discord:</label>
+          <input type="text" id="discordIdInput" placeholder="Ingrese el Discord">
+        </div>
+        <button id="saveDiscordId" class="confirm-button">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Modal de comparación -->
+    <div id="comparisonModal" class="modal">
+      <div class="modal-content large-modal">
+        <span class="close">&times;</span>
+        <div class="section-header"><h2><i class="fas fa-file"></i>Resultados</h2></div>
+        <div class="table-container">
+          <table id="comparisonTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Bungie ID</th>
+                <th>Discord</th> <!-- Nueva columna -->
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody">
+              <!-- Resultados de la comparación se insertarán aquí -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Datos actualizados: <span id="lastUpdated"></span></p>
+    </footer>
+  </div>
+
+  <script>
+    // Constantes
+    const HISTORY_PAGE_SIZE = 5;
+    let currentHistoryPage = 1;
+    let totalHistoryPages = 1;
+
+    // Variables de estado
+    let apiMembers = [];
+    let localMembers = [];
+    let currentEditMemberId = null;
+
+    // Elementos del DOM
+    const apiTableBody = document.getElementById('apiMembersTableBody');
+    const localTableBody = document.getElementById('localMembersTableBody');
+    const historyTableBody = document.getElementById('historyTableBody');
+    const refreshApiDataButton = document.getElementById('refreshApiData');
+    const addMemberButton = document.getElementById('addMemberButton');
+    const saveLocalDataButton = document.getElementById('saveLocalData');
+    const startComparisonButton = document.getElementById('startComparison');
+    const refreshHistoryButton = document.getElementById('refreshHistory');
+    const prevPageButton = document.getElementById('prevPage');
+    const nextPageButton = document.getElementById('nextPage');
+    const currentPageSpan = document.getElementById('currentPage');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const memberIdInput = document.getElementById('memberIdInput');
+    const searchMemberButton = document.getElementById('searchMemberButton');
+    const memberInfoDiv = document.getElementById('memberInfo');
+    const confirmAddMemberButton = document.getElementById('confirmAddMember');
+    const discordIdInput = document.getElementById('discordIdInput');
+    const saveDiscordIdButton = document.getElementById('saveDiscordId');
+    const addMemberModal = document.getElementById('addMemberModal');
+    const editDiscordModal = document.getElementById('editDiscordModal');
+    const comparisonModal = document.getElementById('comparisonModal');
+    const notificationContainer = document.getElementById('notification-container');
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      notificationContainer.appendChild(notification);
+      
+      // Mostrar animación
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+      
+      // Ocultar y eliminar después de 2 segundos
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          notification.remove();
+        }, 300);
+      }, 2000);
+    }
+
+    // Funciones para modales
+    function openModal(modal) {
+      modal.style.display = 'block';
+    }
+
+    function closeModal(modal) {
+      modal.style.display = 'none';
+    }
+
+    // Cerrar modales al hacer clic en la 'x'
+    document.querySelectorAll('.close').forEach(closeBtn => {
+      closeBtn.addEventListener('click', function() {
+        const modal = this.closest('.modal');
+        closeModal(modal);
+      });
+    });
+
+    // Cerrar modales al hacer clic fuera del contenido
+    window.addEventListener('click', function(event) {
+      if (event.target.classList.contains('modal')) {
+        closeModal(event.target);
+      }
+    });
+
+    // Función para cargar datos del clan (API)
+    async function loadApiData() {
+      try {
+        // Obtener miembros del clan
+        const response = await fetch('/clan-members');
+        if (!response.ok) throw new Error('Error al cargar miembros del clan');
+        const data = await response.json();
+        
+        // Procesar miembros
+        apiMembers = data.Response.results.map(member => ({
+          id: member.destinyUserInfo.membershipId,
+          bungieId: member.destinyUserInfo.displayName,
+          supplementalName: member.bungieNetUserInfo.supplementalDisplayName
+        }));
+
+        // Ordenar alfabéticamente por Bungie ID
+        apiMembers.sort((a, b) => a.bungieId.localeCompare(b.bungieId));
+        
+        // Actualizar tabla de la API
+        renderApiTable();
+        
+        // Actualizar fecha
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        
+        // Notificación
+        showNotification('Datos de la API actualizados correctamente', 'success');
+        
+      } catch (error) {
+        console.error('Error al cargar datos de la API:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Función para cargar miembros locales desde la base de datos
+    async function loadLocalData() {
+      try {
+        const response = await fetch('/local-members');
+        if (!response.ok) throw new Error('Error al cargar miembros locales');
+        localMembers = await response.json();
+        renderLocalTable();
+      } catch (error) {
+        console.error('Error al cargar miembros locales:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Función para cargar historial desde la base de datos
+    async function loadHistory() {
+      try {
+        // Obtener número total de páginas
+        const countResponse = await fetch('/history-count');
+        if (!countResponse.ok) throw new Error('Error al obtener conteo de historial');
+        const countData = await countResponse.json();
+        totalHistoryPages = Math.ceil(countData.count / HISTORY_PAGE_SIZE);
+        totalPagesSpan.textContent = totalHistoryPages;
+        
+        // Obtener registros de historial
+        const response = await fetch(`/history?page=${currentHistoryPage}`);
+        if (!response.ok) throw new Error('Error al cargar historial');
+        const history = await response.json();
+        renderHistory(history);
+      } catch (error) {
+        console.error('Error al cargar historial:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Renderizar tabla de la API
+    function renderApiTable() {
+      apiTableBody.innerHTML = '';
+      
+      apiMembers.forEach((member, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td class="member-id">${member.id}</td>
+          <td>
+            <div class="bungie-id-main">${member.bungieId}</div>
+            <div class="supplemental-name">Bungie ID: ${member.supplementalName || 'N/A'}</div>
+          </td>
+        `;
+        apiTableBody.appendChild(row);
+      });
+    }
+
+    // Renderizar tabla local
+    function renderLocalTable() {
+      localTableBody.innerHTML = '';
+      
+      localMembers.forEach((member, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td class="member-id">${member.id}</td>
+          <td>
+            <div class="bungie-id-main">${member.bungie_id}</div>
+            <div class="supplemental-name">Bungie ID: ${member.supplemental_name || 'N/A'}</div>
+          </td>
+          <td class="discord-id-cell">${member.discord_id || 'No asignado'}</td>
+          <td class="action-cell">
+            <div class="action-buttons">
+              <button class="action-button edit-button" data-id="${member.id}" title="Editar Discord">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-button delete-button" data-id="${member.id}" title="Eliminar miembro">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        localTableBody.appendChild(row);
+      });
+      
+      // Agregar event listeners a los botones de editar y eliminar
+      document.querySelectorAll('.edit-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const memberId = this.getAttribute('data-id');
+          openEditDiscordModal(memberId);
+        });
+      });
+      
+      document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const memberId = this.getAttribute('data-id');
+          deleteLocalMember(memberId);
+        });
+      });
+    }
+
+// Renderizar historial
+function renderHistory(history) {
+  historyTableBody.innerHTML = '';
+  
+  history.forEach(record => {
+    const row = document.createElement('tr');
+    // Agregamos una clase para la acción 'updated'
+    if (record.action === 'added') {
+      row.classList.add('history-added');
+    } else if (record.action === 'removed') {
+      row.classList.add('history-removed');
+    } else if (record.action === 'updated') {
+      row.classList.add('history-updated');
+    }
+    
+    // Traducir la acción a un texto legible
+    let actionText;
+    switch (record.action) {
+      case 'added':
+        actionText = 'Agregado';
+        break;
+      case 'removed':
+        actionText = 'Eliminado';
+        break;
+      case 'updated':
+        actionText = 'Actualizado';
+        break;
+      default:
+        actionText = record.action;
+    }
+    
+    row.innerHTML = `
+      <td>${record.timestamp}</td>
+      <td>${actionText}</td>
+      <td class="member-id">${record.member_id}</td>
+      <td>
+        <div class="bungie-id-main">${record.bungie_id}</div>
+        <div class="supplemental-name">Bungie ID: ${record.supplemental_name || 'N/A'}</div>
+      </td>
+      <td>${record.discord_id}</td>
+    `;
+    historyTableBody.appendChild(row);
+  });
+      
+      // Actualizar paginación
+      currentPageSpan.textContent = currentHistoryPage;
+      prevPageButton.disabled = currentHistoryPage <= 1;
+      nextPageButton.disabled = currentHistoryPage >= totalHistoryPages;
+    }
+
+    // Función para guardar miembros locales en la base de datos
+    async function saveLocalData() {
+      try {
+        const response = await fetch('/save-local-members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(localMembers.map(m => ({
+            id: m.id,
+            bungie_id: m.bungie_id,
+            discord_id: m.discord_id,
+            supplemental_name: m.supplemental_name
+          })))
+        });
+        
+        if (!response.ok) throw new Error('Error al guardar');
+        
+        // Recargar el historial
+        currentHistoryPage = 1;
+        await loadHistory();
+        
+        showNotification('Datos guardados con éxito', 'success');
+      } catch (error) {
+        console.error('Error al guardar datos locales:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Función para abrir modal de edición de Discord ID
+    function openEditDiscordModal(memberId) {
+      const member = localMembers.find(m => m.id === memberId);
+      if (member) {
+        currentEditMemberId = memberId;
+        discordIdInput.value = member.discord_id || '';
+        openModal(editDiscordModal);
+      }
+    }
+
+    // Función para eliminar miembro local
+    async function deleteLocalMember(memberId) {
+      try {
+        // Eliminar de la base de datos
+        const response = await fetch(`/delete-local-member/${memberId}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Error al eliminar miembro');
+        
+        // Registrar en el historial
+        const member = localMembers.find(m => m.id === memberId);
+        if (member) {
+          await fetch('/add-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'removed',
+              member_id: member.id,
+              bungie_id: member.bungie_id,
+              discord_id: member.discord_id,
+              supplemental_name: member.supplemental_name
+            })
+          });
+        }
+        
+        // Recargar datos locales
+        await loadLocalData();
+        // Recargar historial
+        await loadHistory();
+        
+        showNotification(`Miembro eliminado: ${memberId}`, 'success');
+      } catch (error) {
+        console.error('Error al eliminar miembro:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Función para buscar miembro en la API
+    function searchMemberInApi() {
+      const memberId = memberIdInput.value.trim();
+      if (!memberId) return;
+      
+      const member = apiMembers.find(m => m.id === memberId);
+      if (member) {
+        memberInfoDiv.innerHTML = `
+          <p><strong>ID:</strong> ${member.id}</p>
+          <p><strong>Miembro:</strong> ${member.bungieId}</p>
+          <p><strong>Bungie ID:</strong> ${member.supplementalName || 'N/A'}</p>
+        `;
+        confirmAddMemberButton.disabled = false;
+      } else {
+        // Permitir agregar aunque no esté en la API
+        memberInfoDiv.innerHTML = `
+          <p><strong>ID:</strong> ${memberId}</p>
+          <p class="warning">Este miembro no se encuentra en Miembros (API).</p>
+          <p class="warning">¿Desea agregarlo de todos modos?</p>
+        `;
+        confirmAddMemberButton.disabled = false;
+      }
+    }
+
+    // Función para agregar miembro local
+    async function addLocalMember() {
+      const memberId = memberIdInput.value.trim();
+      
+      // Buscar si ya existe en local
+      if (localMembers.some(m => m.id === memberId)) {
+        showNotification('Este miembro ya existe en la lista local', 'error');
+        return;
+      }
+      
+      // Buscar en la API
+      const apiMember = apiMembers.find(m => m.id === memberId);
+      const bungieId = apiMember ? apiMember.bungieId : `Miembro no API: ${memberId}`;
+      const supplementalName = apiMember ? apiMember.supplementalName : 'N/A';
+      
+      try {
+        // Agregar a la base de datos
+        const response = await fetch('/add-local-member', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: memberId,
+            bungie_id: bungieId,
+            supplemental_name: supplementalName,
+            discord_id: '',
+          })
+        });
+        
+        if (!response.ok) throw new Error('Error al agregar miembro');
+        
+        // Registrar en el historial
+        await fetch('/add-history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'added',
+            member_id: memberId,
+            bungie_id: bungieId,
+            supplemental_name: supplementalName,
+            discord_id: '',
+          })
+        });
+        
+        // Recargar datos locales
+        await loadLocalData();
+        // Recargar historial
+        await loadHistory();
+        
+        closeModal(addMemberModal);
+        showNotification(`Miembro agregado: ${memberId}`, 'success');
+        
+      } catch (error) {
+        console.error('Error al agregar miembro:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+// Función para guardar Discord ID
+async function saveDiscordId() {
+  const discordId = discordIdInput.value.trim();
+  const member = localMembers.find(m => m.id === currentEditMemberId);
+        
+  if (member) {
+    try {
+      // 1. Actualizar en la tabla local_members
+      const updateResponse = await fetch('/add-local-member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: member.id,
+          bungie_id: member.bungie_id,
+          discord_id: discordId,
+          supplemental_name: member.supplemental_name
+        })
+      });
+                           
+      if (!updateResponse.ok) throw new Error('Error al actualizar Discord ID');
+      
+      // 2. Registrar en el historial (tabla history)
+      const historyResponse = await fetch('/add-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updated', // Nueva acción para actualizaciones
+          member_id: member.id,
+          bungie_id: member.bungie_id,
+          supplemental_name: member.supplemental_name,
+          discord_id: discordId // Aquí guardamos el nuevo valor
+        })
+      });
+      
+      if (!historyResponse.ok) throw new Error('Error al registrar en historial');
+      
+      // Recargar datos locales
+      await loadLocalData();
+      // Recargar historial
+      await loadHistory();
+      
+      closeModal(editDiscordModal);
+      showNotification(`Discord actualizado para ${member.id}`, 'success');
+      
+    } catch (error) {
+      console.error('Error al guardar Discord ID:', error);
+      showNotification(`Error: ${error.message}`, 'error');
+    }
+  }
+}
+
+    // Función para realizar la comparación
+    async function performComparison() {
+      try {
+        // Recargar datos para asegurar frescura
+        await loadApiData();
+        await loadLocalData();
+        
+        comparisonTableBody.innerHTML = '';
+        
+        // Encontrar miembros en la API que no están en local (para agregar)
+        const membersToAdd = apiMembers.filter(apiMember => 
+          !localMembers.some(localMember => localMember.id === apiMember.id)
+        );
+        
+        // Encontrar miembros en local que no están en la API (para eliminar)
+        const membersToRemove = localMembers.filter(localMember => 
+          !apiMembers.some(apiMember => apiMember.id === localMember.id)
+        );
+        
+        // Agregar miembros para añadir (verde)
+        membersToAdd.forEach(member => {
+      const row = document.createElement('tr');
+      row.classList.add('comparison-row-added');
+      row.innerHTML = `
+        <td>${member.id}</td>
+        <td>
+          <div class="bungie-id-main">${member.bungieId}</div>
+          <div class="supplemental-name">Bungie ID: ${member.supplementalName || 'N/A'}</div>
+        </td>
+        <td>No asignado</td> <!-- Nueva columna -->
+        <td>
+          <button class="action-button2 add-button-compare" data-id="${member.id}">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
+        </td>
+      `;
+      comparisonTableBody.appendChild(row);
+    });
+        
+        // Agregar miembros para eliminar (rojo)
+        membersToRemove.forEach(member => {
+      const row = document.createElement('tr');
+      row.classList.add('comparison-row-removed');
+      row.innerHTML = `
+        <td>${member.id}</td>
+        <td>
+          <div class="bungie-id-main">${member.bungie_id}</div>
+          <div class="supplemental-name">Bungie ID: ${member.supplemental_name || 'N/A'}</div>
+        </td>
+        <td>${member.discord_id || 'No asignado'}</td> <!-- Nueva columna -->
+        <td>
+          <button class="action-button2 remove-button-compare" data-id="${member.id}">
+            <i class="fas fa-trash"></i> Eliminar
+          </button>
+        </td>
+      `;
+      comparisonTableBody.appendChild(row);
+    });
+
+        // Agregar event listeners a los botones de acción en la comparación
+        document.querySelectorAll('.add-button-compare').forEach(button => {
+          button.addEventListener('click', async function() {
+            const memberId = this.getAttribute('data-id');
+            const member = apiMembers.find(m => m.id === memberId);
+            if (member) {
+              try {
+                // Agregar a la base de datos
+                const response = await fetch('/add-local-member', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    id: member.id,
+                    bungie_id: member.bungieId,
+                    discord_id: '',
+                    supplemental_name: member.supplementalName
+                  })
+                });
+                
+                if (!response.ok) throw new Error('Error al agregar miembro');
+                
+                // Registrar en el historial
+                await fetch('/add-history', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    action: 'added',
+                    member_id: member.id,
+                    bungie_id: member.bungieId,
+                    supplemental_name: member.supplementalName
+                  })
+                });
+                
+                // Recargar datos locales
+                await loadLocalData();
+                // Volver a realizar la comparación para actualizar
+                await performComparison();
+                
+                showNotification(`Miembro agregado: ${member.id}`, 'success');
+                
+              } catch (error) {
+                console.error('Error al agregar miembro:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+              }
+            }
+          });
+        });
+        
+        document.querySelectorAll('.remove-button-compare').forEach(button => {
+          button.addEventListener('click', async function() {
+            const memberId = this.getAttribute('data-id');
+            try {
+              // Eliminar de la base de datos
+              const response = await fetch(`/delete-local-member/${memberId}`, {
+                method: 'DELETE'
+              });
+              
+              if (!response.ok) throw new Error('Error al eliminar miembro');
+              
+              // Registrar en el historial
+              const member = localMembers.find(m => m.id === memberId);
+              if (member) {
+                await fetch('/add-history', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    action: 'removed',
+                    member_id: member.id,
+                    bungie_id: member.bungie_id,
+                    supplemental_name: member.supplemental_name,
+                    discord_id: member.discord_id || '' // Asegurar que se envíe el Discord ID
+                  })
+                });
+              }
+              
+              // Recargar datos locales
+              await loadLocalData();
+              // Volver a realizar la comparación para actualizar
+              await performComparison();
+              
+              showNotification(`Miembro eliminado: ${memberId}`, 'success');
+              
+            } catch (error) {
+              console.error('Error al eliminar miembro:', error);
+              showNotification(`Error: ${error.message}`, 'error');
+            }
+          });
+        });
+        
+        openModal(comparisonModal);
+      } catch (error) {
+        console.error('Error en la comparación:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    // Inicializar la página
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Cargar datos iniciales
+      await loadApiData();
+      await loadLocalData();
+      await loadHistory();
+      
+      // Configurar botones
+      refreshApiDataButton.addEventListener('click', loadApiData);
+      
+      addMemberButton.addEventListener('click', () => {
+        memberIdInput.value = '';
+        memberInfoDiv.innerHTML = '';
+        confirmAddMemberButton.disabled = true;
+        openModal(addMemberModal);
+      });
+      
+      saveLocalDataButton.addEventListener('click', saveLocalData);
+      
+      startComparisonButton.addEventListener('click', performComparison);
+      
+      searchMemberButton.addEventListener('click', searchMemberInApi);
+      
+      confirmAddMemberButton.addEventListener('click', addLocalMember);
+      
+      saveDiscordIdButton.addEventListener('click', saveDiscordId);
+      
+      // También buscar al presionar Enter en el input
+      memberIdInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchMemberInApi();
+        }
+      });
+      
+      // Configurar botones de historial
+      refreshHistoryButton.addEventListener('click', () => {
+        loadHistory();
+        showNotification('Historial actualizado', 'success');
+      });
+      
+      prevPageButton.addEventListener('click', () => {
+        if (currentHistoryPage > 1) {
+          currentHistoryPage--;
+          loadHistory();
+        }
+      });
+      
+      nextPageButton.addEventListener('click', () => {
+        if (currentHistoryPage < totalHistoryPages) {
+          currentHistoryPage++;
+          loadHistory();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
